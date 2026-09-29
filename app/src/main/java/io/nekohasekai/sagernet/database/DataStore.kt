@@ -27,6 +27,10 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     @Volatile
     var serviceState = BaseService.State.Idle
 
+    var isGridLayout: Boolean
+        get() = configurationStore.getBoolean("is_grid_layout", false)
+        set(value) = configurationStore.putBoolean("is_grid_layout", value)
+
     val configurationStore = RoomPreferenceDataStore(PublicDatabase.kvPairDao)
     val profileCacheStore = RoomPreferenceDataStore(TempDatabase.profileCacheDao)
 

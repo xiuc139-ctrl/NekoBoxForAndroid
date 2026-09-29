@@ -58,6 +58,7 @@ import io.nekohasekai.sagernet.fmt.toUniversalLink
 import io.nekohasekai.sagernet.group.GroupUpdater
 import io.nekohasekai.sagernet.group.RawUpdater
 import io.nekohasekai.sagernet.ktx.FixedLinearLayoutManager
+import io.nekohasekai.sagernet.ktx.FixedGridLayoutManager
 import io.nekohasekai.sagernet.ktx.Logs
 import io.nekohasekai.sagernet.ktx.SubscriptionFoundException
 import io.nekohasekai.sagernet.ktx.alert
@@ -345,6 +346,28 @@ class ConfigurationFragment @JvmOverloads constructor(
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.action_toggle_layout -> {
+                DataStore.isGridLayout = !DataStore.isGridLayout
+                (pager.adapter as? ConfigurationPagerAdapter)?.let { pAdapter ->
+                    for (i in 0 until pAdapter.itemCount) {
+                        val frag = childFragmentManager.findFragmentByTag("f$i") as? GroupPageFragment
+                        frag?.let { f ->
+                            if (::configurationListView.isInitialized || f.isAdded) {
+                                val newLm = if (DataStore.isGridLayout) {
+                                    FixedGridLayoutManager(f.configurationListView, 2)
+                                } else {
+                                    FixedLinearLayoutManager(f.configurationListView)
+                                }
+                                f.layoutManager = newLm
+                                f.configurationListView.layoutManager = newLm
+                                f.adapter?.notifyDataSetChanged()
+                            }
+                        }
+                    }
+                }
+                snackbar(if (DataStore.isGridLayout) "已切换为双列视图" else "已切换为单列视图").show()
+            }
+
             R.id.action_scan_qr_code -> {
                 startActivity(Intent(context, ScannerActivity::class.java))
             }
@@ -1158,7 +1181,11 @@ class ConfigurationFragment @JvmOverloads constructor(
             if (!::proxyGroup.isInitialized) return
 
             configurationListView = view.findViewById(R.id.configuration_list)
-            layoutManager = FixedLinearLayoutManager(configurationListView)
+            layoutManager = if (DataStore.isGridLayout) {
+                FixedGridLayoutManager(configurationListView, 2)
+            } else {
+                FixedLinearLayoutManager(configurationListView)
+            }
             configurationListView.layoutManager = layoutManager
             adapter = ConfigurationAdapter()
             ProfileManager.addListener(adapter!!)

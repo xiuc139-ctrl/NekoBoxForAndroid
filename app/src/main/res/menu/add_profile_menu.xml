@@ -8,6 +8,12 @@
         app:showAsAction="always" />
 
     <item
+        android:id="@+id/action_toggle_layout"
+        android:icon="@drawable/ic_view_module_24"
+        android:title="切换单双列"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/action_add"
         android:icon="@drawable/ic_action_note_add"
         android:title="@string/add_profile"

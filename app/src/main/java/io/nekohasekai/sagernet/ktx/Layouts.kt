@@ -52,18 +52,6 @@ class FixedLinearLayoutManager(val recyclerView: RecyclerView) :
                 if (isShown) hide()
             }
         } else {
-            /*val screen = Rect().also { activity.window.decorView.getGlobalVisibleRect(it) }
-            val location = Rect().also { activity.stats.getGlobalVisibleRect(it) }
-            if (screen.bottom < location.bottom) {
-                return scrollRange
-            }
-            val height = location.bottom - location.top
-            val mH = activity.stats.measuredHeight
-
-            if (mH > height) {
-                return scrollRange
-            }*/
-
             activity.binding.fab.apply {
                 if (!isShown) show()
             }
@@ -71,4 +59,15 @@ class FixedLinearLayoutManager(val recyclerView: RecyclerView) :
         return scrollRange
     }
 
+}
+
+class FixedGridLayoutManager(val recyclerView: RecyclerView, spanCount: Int) :
+    androidx.recyclerview.widget.GridLayoutManager(recyclerView.context, spanCount) {
+
+    override fun onLayoutChildren(recycler: RecyclerView.Recycler?, state: RecyclerView.State?) {
+        try {
+            super.onLayoutChildren(recycler, state)
+        } catch (ignored: IndexOutOfBoundsException) {
+        }
+    }
 }
