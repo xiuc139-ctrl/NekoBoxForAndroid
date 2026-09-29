@@ -348,20 +348,19 @@ class ConfigurationFragment @JvmOverloads constructor(
         when (item.itemId) {
             R.id.action_toggle_layout -> {
                 DataStore.isGridLayout = !DataStore.isGridLayout
-                (pager.adapter as? ConfigurationPagerAdapter)?.let { pAdapter ->
-                    for (i in 0 until pAdapter.itemCount) {
-                        val frag = childFragmentManager.findFragmentByTag("f$i") as? GroupPageFragment
-                        frag?.let { f ->
-                            if (::configurationListView.isInitialized || f.isAdded) {
-                                val newLm = if (DataStore.isGridLayout) {
-                                    FixedGridLayoutManager(f.configurationListView, 2)
-                                } else {
-                                    FixedLinearLayoutManager(f.configurationListView)
-                                }
-                                f.layoutManager = newLm
-                                f.configurationListView.layoutManager = newLm
-                                f.adapter?.notifyDataSetChanged()
+                childFragmentManager.fragments.filterIsInstance<GroupFragment>().forEach { f ->
+                    if (f.isAdded && ::groupPager.isInitialized) {
+                        try {
+                            val newLm = if (DataStore.isGridLayout) {
+                                FixedGridLayoutManager(f.configurationListView, 2)
+                            } else {
+                                FixedLinearLayoutManager(f.configurationListView)
                             }
+                            f.layoutManager = newLm
+                            f.configurationListView.layoutManager = newLm
+                            f.adapter?.notifyDataSetChanged()
+                        } catch (e: Exception) {
+                            Logs.e(e)
                         }
                     }
                 }
