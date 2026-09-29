@@ -827,12 +827,14 @@ class ConfigurationFragment @JvmOverloads constructor(
             }
         }
         test.cancel = {
+            val wasCancelledByUser = (test.dialogStatus.get() == 2)
             test.dialogStatus.set(2)
             dialog.dismiss()
+            val finalResults = ArrayList(test.results)
             runOnDefaultDispatcher {
                 mainJob.cancel()
                 testJobs.forEach { it.cancel() }
-                test.results.forEach {
+                finalResults.forEach {
                     try {
                         ProfileManager.updateProfile(it)
                     } catch (e: Exception) {
@@ -841,6 +843,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                 }
                 GroupManager.postReload(DataStore.currentGroupId())
                 DataStore.runningTest = false
+                showTimeoutNodesDialog(finalResults, wasCancelledByUser)
             }
         }
         test.minimize = {
@@ -896,12 +899,14 @@ class ConfigurationFragment @JvmOverloads constructor(
             }
         }
         test.cancel = {
+            val wasCancelledByUser = (test.dialogStatus.get() == 2)
             test.dialogStatus.set(2)
             dialog.dismiss()
+            val finalResults = ArrayList(test.results)
             runOnDefaultDispatcher {
                 mainJob.cancel()
                 testJobs.forEach { it.cancel() }
-                test.results.forEach {
+                finalResults.forEach {
                     try {
                         ProfileManager.updateProfile(it)
                     } catch (e: Exception) {
@@ -910,6 +915,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                 }
                 GroupManager.postReload(DataStore.currentGroupId())
                 DataStore.runningTest = false
+                showTimeoutNodesDialog(finalResults, wasCancelledByUser)
             }
         }
         test.minimize = {
@@ -919,6 +925,25 @@ class ConfigurationFragment @JvmOverloads constructor(
                 "[${group.displayName()}] ${getString(R.string.connection_test)}"
             )
             dialog.hide()
+        }
+    }
+
+    private fun showTimeoutNodesDialog(results: List<ProxyEntity>, wasCancelled: Boolean) {
+        if (wasCancelled || !isAdded) return
+        val timeoutNodes = results.filter { it.status > 1 }
+        runOnMainDispatcher {
+            if (isAdded) {
+                if (timeoutNodes.isEmpty()) {
+                    snackbar("测速完毕：所有节点均连接正常！").show()
+                } else {
+                    val names = timeoutNodes.map { it.displayName() }.toTypedArray()
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle("测速完成：共有 ${timeoutNodes.size} 个节点超时/失败")
+                        .setItems(names, null)
+                        .setPositiveButton("我知道了", null)
+                        .show()
+                }
+            }
         }
     }
 
