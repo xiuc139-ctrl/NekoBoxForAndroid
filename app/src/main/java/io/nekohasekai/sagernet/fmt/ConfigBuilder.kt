@@ -202,7 +202,9 @@ fun buildConfig(
                 stack = when (DataStore.tunImplementation) {
                     TunImplementation.GVISOR -> "gvisor"
                     TunImplementation.SYSTEM -> "system"
-                    else -> "mixed"
+                    TunImplementation.MIXED -> "mixed"
+                    TunImplementation.SING_TUN -> "system"
+                    else -> "system"
                 }
                 endpoint_independent_nat = true
                 mtu = DataStore.mtu

@@ -430,6 +430,14 @@
         <item>gVisor</item>
         <item>System</item>
         <item>Mixed</item>
+        <item>Sing-Tun (官方最新 TUN / 推荐)</item>
+    </string-array>
+
+    <string-array name="tun_implementation_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
     </string-array>
 
     <string-array name="hysteria_protocol">
